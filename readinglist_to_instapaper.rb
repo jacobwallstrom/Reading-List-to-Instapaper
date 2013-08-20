@@ -60,7 +60,7 @@ end
 
 
 # Let's loop through our links and add them to instapaper
-links.each do |url|
+links.reverse_each do |url|
   http = Net::HTTP.new(instapaper, 443)
   http.use_ssl = true
   http.verify_mode = OpenSSL::SSL::VERIFY_PEER
