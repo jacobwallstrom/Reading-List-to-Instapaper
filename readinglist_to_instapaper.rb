@@ -4,7 +4,7 @@ require 'bundler/setup'
 
 require 'net/https'
 require 'uri'
-require 'ruby_gntp'
+require 'terminal-notifier'
 require 'nokogiri-plist'
 require 'date'
 
@@ -69,28 +69,11 @@ links.each do |url|
   request.basic_auth(insta_user, insta_pass)
   response = http.request(request)
 
-  # Throw up a growl message
-  # The icon stuff doesn't work. Not sure why yet
+  # Display a message in the notification center
   if ( response.code == '201' )
-    begin
-    GNTP.notify({
-      :app_name => "Instapaper",
-      :title    => "Added to Instapaper",
-      :text     => "Successfully added #{url}",
-      :icon     => "http://www.instapaper.com/apple-touch-icon.png",
-    })
-    rescue Errno::ECONNREFUSED
-    end
+    TerminalNotifier.notify("Successfully added #{url}", :title => "Added to Instapaper", :open => response['Content-Location'])
   else
-    begin
-    GNTP.notify({
-      :app_name => "Instapaper",
-      :title    => "Error Adding to Instapaper",
-      :text     => "Could not add #{url}",
-      :icon     => "http://www.instapaper.com/apple-touch-icon.png",
-    })
-    rescue Errno::ECONNREFUSED
-    end
+    TerminalNotifier.notify("Could not add #{url}", :title => "Error Adding to Instapaper")
   end
 end
 
