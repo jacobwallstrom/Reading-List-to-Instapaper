@@ -42,29 +42,23 @@ input = %x[/usr/bin/plutil -convert xml1 -o - ~/Library/Safari/Bookmarks.plist]
 plist = Nokogiri::PList(input)
 if plist.include? 'Children'
   plist['Children'].each do |child|
-    child.keys.each do |ck|
-      if child[ck].is_a? Array
-        child[ck].each do |list|
-          if list.include? 'ReadingList'
-            datefetched = list['ReadingList']['DateAdded']
-            if (datefetched > lastrun_dt)
-              links << URI::escape(list['URLString'])
-            end
-          end
+    if child["Title"] == "com.apple.ReadingList" && child["Children"].is_a?(Array)
+      child["Children"].each do |list_item|
+        date_fetched = list_item['ReadingList']['DateAdded']
+        if (date_fetched > lastrun_dt)
+          links << list_item['URLString']
         end
       end
     end
   end
 end
 
-
-
 # Let's loop through our links and add them to instapaper
 links.reverse_each do |url|
   http = Net::HTTP.new(instapaper, 443)
   http.use_ssl = true
   http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-  query_string = "/api/add?url=#{url}"
+  query_string = "/api/add?url=#{URI::escape(url)}"
   request = Net::HTTP::Get.new(query_string)
   request.basic_auth(insta_user, insta_pass)
   response = http.request(request)
