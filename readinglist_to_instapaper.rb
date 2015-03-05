@@ -44,7 +44,7 @@ if plist.include? 'Children'
   plist['Children'].each do |child|
     if child["Title"] == "com.apple.ReadingList" && child["Children"].is_a?(Array)
       child["Children"].each do |list_item|
-        date_fetched = list_item['ReadingList']['DateAdded']
+        date_fetched = list_item['ReadingList']['DateLastFetched'] || list_item['ReadingList']['DateAdded']
         if (date_fetched > lastrun_dt)
           links << list_item['URLString']
         end
